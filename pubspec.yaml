@@ -8,6 +8,8 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
+  pluralize: ^0.0.8
+  postgres: ^2.6.2
   recase: ^4.1.0
   # path: ^1.8.0
 

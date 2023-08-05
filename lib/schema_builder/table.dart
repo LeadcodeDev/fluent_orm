@@ -3,6 +3,7 @@ import 'package:fluent_orm/schema_builder/column_structure.dart';
 import 'package:fluent_orm/schema_builder/column_types/increments_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/integer_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/string_column.dart';
+import 'package:fluent_orm/schema_builder/column_types/text_column.dart';
 
 class Table {
   final List<ColumnStructure> columnStructure = [];
@@ -10,6 +11,13 @@ class Table {
 
   StringColumnContract string (String columnName, { int length = 255 }) {
     final column = StringColumn(this, columnName, length);
+    columnStructure.add(column);
+
+    return column;
+  }
+
+  TextColumnContract text (String columnName) {
+    final column = TextColumn(columnName);
     columnStructure.add(column);
 
     return column;

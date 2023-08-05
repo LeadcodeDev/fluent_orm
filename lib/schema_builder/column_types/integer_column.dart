@@ -1,8 +1,8 @@
-import 'package:fluent_orm/schema_builder/column_modifiers/auto_increment_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/default_to_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/not_nullable_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/nullable_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/primary_modifier.dart';
+import 'package:fluent_orm/schema_builder/column_modifiers/unique_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_structure.dart';
 import 'package:fluent_orm/schema_builder/table.dart';
 
@@ -11,6 +11,7 @@ abstract interface class IntegerColumnContract {
   IntegerColumnContract notNullable();
   IntegerColumnContract nullable();
   IntegerColumnContract defaultTo(int value);
+  IntegerColumnContract unique ({ String? column });
 }
 
 final class IntegerColumn extends ColumnStructure implements IntegerColumnContract {
@@ -41,6 +42,12 @@ final class IntegerColumn extends ColumnStructure implements IntegerColumnContra
   @override
   IntegerColumnContract defaultTo(final int value) {
     modifiers.add(DefaultToModifier(value));
+    return this;
+  }
+
+  @override
+  IntegerColumnContract unique ({ String? column }) {
+    _table.constraints.add(UniqueModifier(column ?? _columnName));
     return this;
   }
 

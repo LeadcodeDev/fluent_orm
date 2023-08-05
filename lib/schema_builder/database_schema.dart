@@ -8,6 +8,7 @@ class DatabaseSchema {
 
     final columns = _table.columnStructure.map((e) => e.query).join(', ');
     final primaryKeys = _table.primaryKeys.map((e) => e.query).join(', ');
+    final constraints = _table.constraints.map((e) => e.query).join(', ');
 
     final body = [];
     if (columns.isNotEmpty) {
@@ -16,6 +17,10 @@ class DatabaseSchema {
 
     if (primaryKeys.isNotEmpty) {
       body.add(primaryKeys);
+    }
+
+    if (constraints.isNotEmpty) {
+      body.add(constraints);
     }
 
     final arr = ['CREATE TABLE $tableName', "(${body.join(', ')});"];

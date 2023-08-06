@@ -1,9 +1,13 @@
+import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/schema_builder/table.dart';
 
 class DatabaseSchema {
+  final FluentManager _manager;
   final Table _table = Table();
 
-  void createTable (String tableName, Function(Table table) schema) {
+  DatabaseSchema(this._manager);
+
+  Future createTable (String tableName, Function(Table table) schema) async {
     schema(_table);
 
     final columns = _table.columnStructure.map((e) => e.query).join(', ');
@@ -24,6 +28,6 @@ class DatabaseSchema {
     }
 
     final arr = ['CREATE TABLE $tableName', "(${body.join(', ')});"];
-    print(arr.join(' '));
+    await _manager.client.execute(arr.join(' '));
   }
 }

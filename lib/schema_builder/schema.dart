@@ -1,5 +1,7 @@
+import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/schema_builder/database_schema.dart';
 
 abstract class Schema {
-  final schema = DatabaseSchema();
+  late final FluentManager manager;
+  late final DatabaseSchema schema;
 }

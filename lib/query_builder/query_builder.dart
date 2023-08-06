@@ -40,6 +40,7 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
 
   QueryBuilder<T> insert(String tableName, Map<String, dynamic> payload) {
     structure.clauses.insert = InsertClause(tableName, payload);
+    structure.clauses.returning = ReturningClause('*');
     return this;
   }
 
@@ -172,12 +173,15 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
   @override
   Future<T> save () async {
     final query = [
-      structure.clauses.update?.query,
+      structure.clauses.insert?.query,
       ...structure.clauses.where.map((e) => e.query),
       structure.clauses.returning?.query,
     ];
 
-    return query as T;
+    return switch (T) {
+      dynamic => _manager.request.commitWithoutModel(query: query.nonNulls.join(' ')),
+      _ => _manager.request.commit<T, T>(query: query.nonNulls.join(' '))
+    } as Future<T>;
   }
 
   @override
@@ -188,7 +192,10 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
       structure.clauses.returning?.query,
     ];
 
-    return query as T;
+    return switch (T) {
+      dynamic => _manager.request.commitWithoutModel(query: query.nonNulls.join(' ')),
+      _ => _manager.request.commit<T, T>(query: query.nonNulls.join(' '))
+    } as Future<T>;
   }
 
   @override
@@ -199,6 +206,9 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
       structure.clauses.returning?.query,
     ];
 
-    return query as T;
+    return switch (T) {
+      dynamic => _manager.request.commitWithoutModel(query: query.nonNulls.join(' ')),
+      _ => _manager.request.commit<T, T>(query: query.nonNulls.join(' '))
+    } as Future<T>;
   }
 }

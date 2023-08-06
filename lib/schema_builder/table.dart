@@ -3,10 +3,12 @@ import 'package:fluent_orm/schema_builder/column_modifiers/default_to_modifier.d
 import 'package:fluent_orm/schema_builder/column_modifiers/primary_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_structure.dart';
 import 'package:fluent_orm/schema_builder/column_types/bool_column.dart';
+import 'package:fluent_orm/schema_builder/column_types/date_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/increments_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/integer_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/string_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/text_column.dart';
+import 'package:fluent_orm/schema_builder/column_types/time_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/timestamp_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/uuid_column.dart';
 
@@ -57,10 +59,24 @@ class Table {
     return column;
   }
 
-  TimestampColumn timestamp (String columnName) {
+  TimestampColumnContract timestamp (String columnName) {
     final column = TimestampColumn(columnName)
       ..modifiers.add(DefaultToModifier('(now() at time zone \'utc\')'));
 
+    columnStructure.add(column);
+
+    return column;
+  }
+
+  DateColumnContract date (String columnName) {
+    final column = DateColumn(columnName);
+    columnStructure.add(column);
+
+    return column;
+  }
+
+  DateTimeColumnContract dateTime (String columnName) {
+    final column = DateTimeColumn(columnName);
     columnStructure.add(column);
 
     return column;

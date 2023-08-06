@@ -1,4 +1,5 @@
 import 'package:fluent_orm/schema_builder/column_modifier.dart';
+import 'package:fluent_orm/schema_builder/column_modifiers/default_to_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/primary_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_structure.dart';
 import 'package:fluent_orm/schema_builder/column_types/bool_column.dart';
@@ -6,6 +7,7 @@ import 'package:fluent_orm/schema_builder/column_types/increments_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/integer_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/string_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/text_column.dart';
+import 'package:fluent_orm/schema_builder/column_types/timestamp_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/uuid_column.dart';
 
 class Table {
@@ -42,7 +44,7 @@ class Table {
   }
 
   BoolColumnContract boolean (String columnName) {
-    final column = BoolColumn(this, columnName);
+    final column = BoolColumn(columnName);
     columnStructure.add(column);
 
     return column;
@@ -50,6 +52,15 @@ class Table {
 
   IncrementsColumn increments (String columnName) {
     final column = IncrementsColumn(columnName);
+    columnStructure.add(column);
+
+    return column;
+  }
+
+  TimestampColumn timestamp (String columnName) {
+    final column = TimestampColumn(columnName)
+      ..modifiers.add(DefaultToModifier('(now() at time zone \'utc\')'));
+
     columnStructure.add(column);
 
     return column;

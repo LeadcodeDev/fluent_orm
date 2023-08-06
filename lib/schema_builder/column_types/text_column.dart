@@ -32,7 +32,7 @@ final class TextColumn extends ColumnStructure implements TextColumnContract {
 
   @override
   TextColumnContract defaultTo(final value) {
-    modifiers.add(DefaultToModifier(value));
+    modifiers.add(DefaultToModifier('\'$value\''));
     return this;
   }
 

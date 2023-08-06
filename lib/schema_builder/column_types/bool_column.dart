@@ -1,9 +1,7 @@
 import 'package:fluent_orm/schema_builder/column_modifiers/default_to_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/not_nullable_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/nullable_modifier.dart';
-import 'package:fluent_orm/schema_builder/column_modifiers/unique_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_structure.dart';
-import 'package:fluent_orm/schema_builder/table.dart';
 
 abstract interface class BoolColumnContract {
   BoolColumnContract notNullable();
@@ -12,10 +10,9 @@ abstract interface class BoolColumnContract {
 }
 
 final class BoolColumn extends ColumnStructure implements BoolColumnContract {
-  final Table _table;
   final String _columnName;
 
-  BoolColumn(this._table, this._columnName): super('BOOLEAN');
+  BoolColumn(this._columnName): super('BOOLEAN');
 
   @override
   BoolColumnContract nullable() {
@@ -30,7 +27,7 @@ final class BoolColumn extends ColumnStructure implements BoolColumnContract {
   }
 
   @override
-  BoolColumnContract defaultTo(final value) {
+  BoolColumnContract defaultTo(final bool value) {
     modifiers.add(DefaultToModifier(value));
     return this;
   }

@@ -35,7 +35,7 @@ final class StringColumn extends ColumnStructure implements StringColumnContract
 
   @override
   StringColumnContract defaultTo(final value) {
-    modifiers.add(DefaultToModifier(value));
+    modifiers.add(DefaultToModifier('\'$value\''));
     return this;
   }
 

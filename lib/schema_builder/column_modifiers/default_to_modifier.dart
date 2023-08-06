@@ -6,5 +6,5 @@ class DefaultToModifier extends ColumnModifier {
   DefaultToModifier(this.value): super('DEFAULT');
 
   @override
-  String get query => "$token '$value'";
+  String get query => "$token $value";
 }

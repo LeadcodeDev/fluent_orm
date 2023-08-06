@@ -28,6 +28,7 @@ class DatabaseSchema {
     }
 
     final arr = ['CREATE TABLE $tableName', "(${body.join(', ')});"];
+    print(arr.join(' '));
     await _manager.client.execute(arr.join(' '));
   }
 }

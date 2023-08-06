@@ -1,6 +1,7 @@
 import 'package:fluent_orm/schema_builder/column_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/primary_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_structure.dart';
+import 'package:fluent_orm/schema_builder/column_types/bool_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/increments_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/integer_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/string_column.dart';
@@ -35,6 +36,13 @@ class Table {
 
   IntegerColumnContract integer (String columnName) {
     final column = IntegerColumn(this, columnName);
+    columnStructure.add(column);
+
+    return column;
+  }
+
+  BoolColumnContract boolean (String columnName) {
+    final column = BoolColumn(this, columnName);
     columnStructure.add(column);
 
     return column;

@@ -4,4 +4,7 @@ import 'package:fluent_orm/schema_builder/database_schema.dart';
 abstract class Schema {
   late final FluentManager manager;
   late final DatabaseSchema schema;
+
+  Future<void> up();
+  Future<void> down();
 }

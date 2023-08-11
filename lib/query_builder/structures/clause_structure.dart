@@ -1,6 +1,7 @@
 import 'package:fluent_orm/query_builder/clauses/delete_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/from_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/insert_clause.dart';
+import 'package:fluent_orm/query_builder/clauses/into_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/limit_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/offset_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/order_by_clause.dart';
@@ -18,6 +19,7 @@ class ClauseStructure {
   OffsetClause? offset;
   List<OrderByClause> order = [];
   FromClause? from;
+  IntoClause? into;
   InsertClause? insert;
   DeleteClause? delete;
   ValuesClause? values;

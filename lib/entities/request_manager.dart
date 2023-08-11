@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:fluent_orm/entities/model.dart';
 import 'package:fluent_orm/entities/model_wrapper.dart';
 import 'package:fluent_orm/fluent_manager.dart';
+import 'package:fluent_orm/query_builder/clause.dart';
 import 'package:fluent_orm/query_builder/declarations/declare_metadata.dart';
 import 'package:fluent_orm/query_builder/declarations/declare_property.dart';
 import 'package:fluent_orm/query_builder/declarations/declare_relation.dart';
 import 'package:fluent_orm/query_builder/preloaded_relation.dart';
+import 'package:fluent_orm/query_builder/punctuations/end_punctuation.dart';
+import 'package:fluent_orm/query_builder/query_structure.dart';
 import 'package:postgres/postgres.dart';
 
 class RequestManager {
@@ -51,8 +54,8 @@ class RequestManager {
 
     if (instance.metadata is DeclareMetadata) {
       (instance.metadata as DeclareMetadata).bucket
-          ..putIfAbsent('modelName', () => model.modelName)
-          ..putIfAbsent('tableName', () => model.modelName);
+        ..putIfAbsent('modelName', () => model.modelName)
+        ..putIfAbsent('tableName', () => model.modelName);
     }
 
 
@@ -69,15 +72,15 @@ class RequestManager {
       for (final preload in preloads) {
         final e = await preload.query(id);
 
-        if (instance.relations is DeclareRelation) {
-          (instance.relations as DeclareRelation).bucket.putIfAbsent(
-            '${preload.type}::${preload.relation.tableName}',
-            () => selectOne ? e[0] : e
-          );
-        }
+        final relations = instance.relations as DeclareRelation;
+        relations.bucket.putIfAbsent(
+          '${preload.type}::${preload.relation.tableName}',
+          () => selectOne ? e[0] : e
+        );
       }
     }
 
+    instance.manager = _manager;
     return Future.value(instance as FutureOr<T>?);
   }
 
@@ -90,14 +93,41 @@ class RequestManager {
     return arr;
   }
 
-  Future<List<dynamic>> commitWithoutModel ({ required String query }) async {
+  Future<T> commitWithoutModel<T> ({ required String query, bool first = false }) async {
     final result = await _manager.client.execute(query);
 
-    return result.map((row) =>
+    final data = result.map((row) =>
       row.columnDescriptions.fold({}, (acc, element) => {
         ...acc,
         element.columnName: row[row.columnDescriptions.indexOf(element)]
       })
     ).toList();
+
+    return switch (first) {
+      true => data.firstOrNull,
+      _ => data
+    } as T;
+  }
+
+  String buildQuery(QueryStructure structure) {
+    final List<Clause> instructions = [];
+
+    if (structure.clauses.select != null) {
+      instructions.add(structure.clauses.select!);
+    }
+
+    if (structure.clauses.from != null) {
+      instructions.add(structure.clauses.from!);
+    }
+
+    if (structure.clauses.where.isNotEmpty) {
+      instructions.addAll(structure.clauses.where);
+    }
+
+    if (structure.clauses.limit != null) {
+      instructions.add(structure.clauses.limit!);
+    }
+
+    return instructions.map((e) => e.query).join(' ');
   }
 }

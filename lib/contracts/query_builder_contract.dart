@@ -16,6 +16,7 @@ abstract interface class SelectContract<T> {
 
 abstract interface class InsertContract<T> {
   Future<T> save();
+  Future<List<T>> saveMany();
 }
 
 abstract interface class UpdateContract<T> {

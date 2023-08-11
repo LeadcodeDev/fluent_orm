@@ -1,5 +1,6 @@
 import 'package:fluent_orm/contracts/query_builder_contract.dart';
 import 'package:fluent_orm/entities/model.dart';
+import 'package:fluent_orm/entities/model_wrapper.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/query_builder/query_builder.dart';
 
@@ -15,9 +16,11 @@ class Database<T> {
     return database;
   }
 
-  QueryBuilder<M> forModel<M extends Model> () {
+  QueryBuilder<M> forModel<M> () {
+    final ModelWrapper model = _manager.resolve<M>();
     final Database<M> database = Database<M>();
-    database._builder = QueryBuilder<M>(manager: _manager);
+
+    database._builder = QueryBuilder<M>(manager: _manager, model: model);
     database._builder.from(_manager.resolve<M>().tableName);
 
     return database._builder;
@@ -31,18 +34,33 @@ class Database<T> {
     return _builder;
   }
 
-  InsertContract<T> insert({ required String table, required Map<String, dynamic> data }) {
-    _builder.insert(table, data);
+  InsertContract<T> insert({ required String tableName, required Map<String, dynamic> data }) {
+    _builder
+      ..into(tableName)
+      ..insert(data);
+
     return _builder;
   }
 
-  UpdateContract<T> update({ required String table, required Map<String, dynamic> data }) {
-    _builder.update(table, data);
-    return _builder;
+  UpdateContract<T> update({ required String tableName, required Map<String, dynamic> data }) {
+    return _builder
+      ..update(data)
+      ..into(tableName);
   }
 
   DeleteContract<T> delete({ required String table }) {
     _builder.from(table);
     return _builder;
   }
+
+  Future<bool> exists(String tableName) async {
+    final result = await Database.of(_manager)
+      .select(table: 'information_schema.tables')
+      .where(column: 'table_name', value: tableName)
+      .first();
+
+    return result != null;
+  }
+
+  QueryBuilder<T> query () => _builder;
 }

@@ -15,7 +15,8 @@ enum ClauseToken {
   value('VALUES'),
   returning('RETURNING'),
   update('UPDATE'),
-  delete('DELETE'),;
+  delete('DELETE'),
+  into('INTO');
 
   final String uid;
   const ClauseToken(this.uid);

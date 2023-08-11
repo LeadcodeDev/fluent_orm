@@ -34,6 +34,16 @@ final class ManyToManyDeclaration<M extends Model> extends Relation<M> {
   String get foreignKey => _foreignKey ?? 'id';
 }
 
+final class BelongToDeclaration<M extends Model> extends Relation<M> {
+  BelongToDeclaration(super._localKey, super._foreignKey);
+
+  @override
+  String get localKey => _localKey ?? '${relatedModel.tableName}_id';
+
+  @override
+  String get foreignKey => _foreignKey ?? 'id';
+}
+
 sealed class Relation<M extends Model> {
   late final FluentManager manager;
 
@@ -49,4 +59,5 @@ sealed class Relation<M extends Model> {
   factory Relation.hasMany({ String? localKey, String? foreignKey }) => HasManyDeclaration<M>(localKey, foreignKey);
   factory Relation.hasOne({ String? localKey, String? foreignKey }) => HasOneDeclaration<M>(localKey, foreignKey);
   factory Relation.manyToMany({ String? localKey, String? foreignKey }) => ManyToManyDeclaration<M>(localKey, foreignKey);
+  factory Relation.belongTo({ String? localKey, String? foreignKey }) => BelongToDeclaration<M>(localKey, foreignKey);
 }

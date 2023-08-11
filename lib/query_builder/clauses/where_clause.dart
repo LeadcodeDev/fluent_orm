@@ -14,6 +14,6 @@ class WhereClause extends Clause {
     final String operator = this.operator.uid;
     final String value = '${this.value}';
 
-    return '${token.uid} $column $operator $value';
+    return '${token.uid} $column $operator \'$value\'';
   }
 }

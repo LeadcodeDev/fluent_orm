@@ -1,7 +1,5 @@
-import 'package:fluent_orm/schema_builder/column_modifier.dart';
+import 'package:fluent_orm/schema_builder/abstract_table.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/default_to_modifier.dart';
-import 'package:fluent_orm/schema_builder/column_modifiers/primary_modifier.dart';
-import 'package:fluent_orm/schema_builder/column_structure.dart';
 import 'package:fluent_orm/schema_builder/column_types/bool_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/date_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/increments_column.dart';
@@ -12,11 +10,7 @@ import 'package:fluent_orm/schema_builder/column_types/time_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/timestamp_column.dart';
 import 'package:fluent_orm/schema_builder/column_types/uuid_column.dart';
 
-class Table {
-  final List<ColumnStructure> columnStructure = [];
-  final List<PrimaryModifier> primaryKeys = [];
-  final List<ColumnModifier> constraints = [];
-
+class CreateTable extends AbstractTable {
   StringColumnContract string (String columnName, { int length = 255 }) {
     final column = StringColumn(this, columnName, length);
     columnStructure.add(column);

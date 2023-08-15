@@ -11,8 +11,9 @@ abstract interface class BoolColumnContract {
 
 final class BoolColumn extends ColumnStructure implements BoolColumnContract {
   final String _columnName;
+  final bool isAlter;
 
-  BoolColumn(this._columnName): super('BOOLEAN');
+  BoolColumn(this._columnName, { this.isAlter = false }): super('BOOLEAN');
 
   @override
   BoolColumnContract nullable() {
@@ -34,7 +35,7 @@ final class BoolColumn extends ColumnStructure implements BoolColumnContract {
 
   @override
   String get query {
-    final instructions = [_columnName, token, super.query];
-    return instructions.join(' ');
+    final instructions = [isAlter ? 'ADD COLUMN' : null, _columnName, token, super.query];
+    return instructions.nonNulls.join(' ');
   }
 }

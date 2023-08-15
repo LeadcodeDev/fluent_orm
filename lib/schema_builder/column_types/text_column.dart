@@ -1,9 +1,9 @@
+import 'package:fluent_orm/schema_builder/abstract_table.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/default_to_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/not_nullable_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/nullable_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_modifiers/unique_modifier.dart';
 import 'package:fluent_orm/schema_builder/column_structure.dart';
-import 'package:fluent_orm/schema_builder/table.dart';
 
 abstract interface class TextColumnContract {
   TextColumnContract notNullable();
@@ -13,10 +13,11 @@ abstract interface class TextColumnContract {
 }
 
 final class TextColumn extends ColumnStructure implements TextColumnContract {
-  final Table _table;
+  final AbstractTable _table;
   final String _columnName;
+  final bool isAlter;
 
-  TextColumn(this._table, this._columnName): super('TEXT');
+  TextColumn(this._table, this._columnName, { this.isAlter = false }): super('TEXT');
 
   @override
   TextColumnContract nullable() {
@@ -44,7 +45,7 @@ final class TextColumn extends ColumnStructure implements TextColumnContract {
 
   @override
   String get query {
-    final instructions = [_columnName, token, super.query];
-    return instructions.join(' ');
+    final instructions = [isAlter ? 'ADD COLUMN' : null, _columnName, token, super.query];
+    return instructions.nonNulls.join(' ');
   }
 }

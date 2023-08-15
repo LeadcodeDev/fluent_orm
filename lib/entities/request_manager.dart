@@ -8,7 +8,6 @@ import 'package:fluent_orm/query_builder/declarations/declare_metadata.dart';
 import 'package:fluent_orm/query_builder/declarations/declare_property.dart';
 import 'package:fluent_orm/query_builder/declarations/declare_relation.dart';
 import 'package:fluent_orm/query_builder/preloaded_relation.dart';
-import 'package:fluent_orm/query_builder/punctuations/end_punctuation.dart';
 import 'package:fluent_orm/query_builder/query_structure.dart';
 import 'package:postgres/postgres.dart';
 
@@ -57,7 +56,6 @@ class RequestManager {
         ..putIfAbsent('modelName', () => model.modelName)
         ..putIfAbsent('tableName', () => model.modelName);
     }
-
 
     for (final column in result.columnDescriptions) {
       final index = result.columnDescriptions.indexOf(column);

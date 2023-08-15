@@ -9,7 +9,7 @@ abstract interface class SelectContract<T> {
   SelectContract<T> offset(int offset);
   SelectContract<T> limit(int limit);
   SelectContract<T> orderBy(String column, { Order direction = Order.asc });
-  Future<List<T>> get();
+  Future<List<T>> all();
   Future<T?> first();
   Future<T> firstOrFail();
 }

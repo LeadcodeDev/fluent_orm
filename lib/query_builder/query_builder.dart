@@ -1,6 +1,6 @@
 import 'package:fluent_orm/contracts/query_builder_contract.dart';
-import 'package:fluent_orm/entities/model_wrapper.dart';
 import 'package:fluent_orm/entities/model.dart';
+import 'package:fluent_orm/entities/model_wrapper.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/query_builder/clause_operator.dart';
 import 'package:fluent_orm/query_builder/clauses/and_where_clause.dart';
@@ -17,6 +17,7 @@ import 'package:fluent_orm/query_builder/clauses/returning_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/select_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/update_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/where_clause.dart';
+import 'package:fluent_orm/query_builder/declarations/relation.dart';
 import 'package:fluent_orm/query_builder/order.dart';
 import 'package:fluent_orm/query_builder/preloaded_relation.dart';
 import 'package:fluent_orm/query_builder/punctuations/end_punctuation.dart';
@@ -25,7 +26,6 @@ import 'package:fluent_orm/query_builder/relations/belong_to.dart';
 import 'package:fluent_orm/query_builder/relations/has_many.dart';
 import 'package:fluent_orm/query_builder/relations/has_one.dart';
 import 'package:fluent_orm/query_builder/relations/many_to_many.dart';
-import 'package:fluent_orm/query_builder/declarations/relation.dart';
 
 class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateContract<T>, DeleteContract<T>, HasMany, HasOne, ManyToMany, BelongTo {
   late final FluentManager _manager;
@@ -174,7 +174,7 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
   ];
 
   @override
-  Future<List<T>> get () async {
+  Future<List<T>> all () async {
     return switch (T) {
       dynamic => _manager.request.commitWithoutModel<List<T>>(query: _selectClauses.nonNulls.join(' ')),
       _ => _manager.request.commit<List<T>, T>(query: _selectClauses.nonNulls.join(' '))

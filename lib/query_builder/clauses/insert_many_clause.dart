@@ -1,7 +1,4 @@
-import 'package:fluent_orm/query_builder/clause.dart';
-import 'package:fluent_orm/query_builder/clause_token.dart';
 import 'package:fluent_orm/query_builder/clauses/insert_clause.dart';
-import 'package:fluent_orm/query_builder/clauses/values_clause.dart';
 
 class InsertManyClause extends InsertClause {
   InsertManyClause(super.tableName, super.payload);

@@ -9,8 +9,9 @@ abstract interface class DateColumnContract {
 
 final class DateColumn extends ColumnStructure implements DateColumnContract {
   final String _columnName;
+  final bool isAlter;
 
-  DateColumn(this._columnName): super('DATE');
+  DateColumn(this._columnName, { this.isAlter = false }): super('DATE');
 
   @override
   DateColumnContract nullable() {
@@ -26,7 +27,7 @@ final class DateColumn extends ColumnStructure implements DateColumnContract {
 
   @override
   String get query {
-    final instructions = [_columnName, token, super.query];
-    return instructions.join(' ');
+    final instructions = [isAlter ? 'ADD COLUMN' : null, _columnName, token, super.query];
+    return instructions.nonNulls.join(' ');
   }
 }

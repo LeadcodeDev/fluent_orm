@@ -9,8 +9,9 @@ abstract interface class DateTimeColumnContract {
 
 final class DateTimeColumn extends ColumnStructure implements DateTimeColumnContract {
   final String _columnName;
+  final bool isAlter;
 
-  DateTimeColumn(this._columnName): super('TIME');
+  DateTimeColumn(this._columnName, { this.isAlter = false }): super('TIME');
 
   @override
   DateTimeColumnContract nullable() {
@@ -26,7 +27,7 @@ final class DateTimeColumn extends ColumnStructure implements DateTimeColumnCont
 
   @override
   String get query {
-    final instructions = [_columnName, token, super.query];
-    return instructions.join(' ');
+    final instructions = [isAlter ? 'ADD COLUMN' : null, _columnName, token, super.query];
+    return instructions.nonNulls.join(' ');
   }
 }

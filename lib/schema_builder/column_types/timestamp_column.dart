@@ -9,8 +9,9 @@ abstract interface class TimestampColumnContract {
 
 final class TimestampColumn extends ColumnStructure implements TimestampColumnContract {
   final String _columnName;
+  final bool isAlter;
 
-  TimestampColumn(this._columnName, { bool time = true }): super('TIMESTAMP ${time ? 'WITH TIME ZONE' : ''}');
+  TimestampColumn(this._columnName, { bool time = true, this.isAlter = false }): super('TIMESTAMP ${time ? 'WITH TIME ZONE' : ''}');
 
   @override
   TimestampColumnContract nullable() {
@@ -26,7 +27,7 @@ final class TimestampColumn extends ColumnStructure implements TimestampColumnCo
 
   @override
   String get query {
-    final instructions = [_columnName, token, super.query];
-    return instructions.join(' ');
+    final instructions = [isAlter ? 'ADD COLUMN' : null, _columnName, token, super.query];
+    return instructions.nonNulls.join(' ');
   }
 }

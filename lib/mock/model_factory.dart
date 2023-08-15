@@ -1,6 +1,5 @@
 import 'package:faker/faker.dart';
 import 'package:fluent_orm/database.dart';
-import 'package:fluent_orm/entities/model_wrapper.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/mock/structure_factory.dart';
 

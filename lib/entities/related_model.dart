@@ -4,7 +4,6 @@ import 'package:fluent_orm/entities/model_wrapper.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/query_builder/declarations/relation.dart';
 import 'package:fluent_orm/query_builder/relations/has_many.dart';
-import 'package:fluent_orm/query_builder/relations/has_one.dart';
 import 'package:fluent_orm/query_builder/relations/many_to_many.dart';
 import 'package:pluralize/pluralize.dart';
 

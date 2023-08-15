@@ -1,5 +1,4 @@
 import 'package:fluent_orm/contracts/query_builder_contract.dart';
-import 'package:fluent_orm/entities/model.dart';
 import 'package:fluent_orm/entities/model_wrapper.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/query_builder/query_builder.dart';

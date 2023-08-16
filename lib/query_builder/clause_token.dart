@@ -12,6 +12,7 @@ enum ClauseToken {
   concat('CONCAT'),
   as('AS'),
   insert('INSERT INTO'),
+  empty(''),
   value('VALUES'),
   returning('RETURNING'),
   update('UPDATE'),

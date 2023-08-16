@@ -1,5 +1,6 @@
 import 'package:fluent_orm/contracts/query_builder_contract.dart';
 import 'package:fluent_orm/entities/model.dart';
+import 'package:fluent_orm/entities/model_builder.dart';
 import 'package:fluent_orm/entities/model_wrapper.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/query_builder/clause_operator.dart';
@@ -15,8 +16,10 @@ import 'package:fluent_orm/query_builder/clauses/or_where_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/order_by_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/returning_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/select_clause.dart';
+import 'package:fluent_orm/query_builder/clauses/table_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/update_clause.dart';
 import 'package:fluent_orm/query_builder/clauses/where_clause.dart';
+import 'package:fluent_orm/query_builder/declarations/declare_property.dart';
 import 'package:fluent_orm/query_builder/declarations/relation.dart';
 import 'package:fluent_orm/query_builder/order.dart';
 import 'package:fluent_orm/query_builder/preloaded_relation.dart';
@@ -43,7 +46,7 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
     return this;
   }
 
-  QueryBuilder<T> insert(Map<String, dynamic> payload) {
+  Future<T> insert(Map<String, dynamic> payload) async {
     final ModelWrapper? model = _manager.resolveOrNull<T>();
     final String tableName = model != null
       ?  model.tableName
@@ -51,7 +54,8 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
 
     structure.clauses.insert = InsertClause(tableName, payload);
     structure.clauses.returning = ReturningClause('*');
-    return this;
+
+
   }
 
   QueryBuilder<T> insertMany(List<Map<String, dynamic>> payload) {
@@ -61,7 +65,6 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
       : structure.clauses.into!.tableName;
 
     structure.clauses.insert = InsertManyClause(tableName, payload);
-    structure.clauses.returning = ReturningClause('*');
     return this;
   }
 
@@ -122,6 +125,12 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
 
   QueryBuilder<T> into(String tableName) {
     structure.clauses.into = IntoClause(tableName);
+    return this;
+  }
+
+  @override
+  QueryBuilder<T> table(String tableName) {
+    structure.clauses.table = TableClause(tableName);
     return this;
   }
 
@@ -190,7 +199,7 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
       ?  model.tableName
       : structure.clauses.from!.tableName);
 
-    structure.clauses.select ??= SelectClause(columns: model?.fields ?? ['*']);
+    structure.clauses.select ??= SelectClause(columns: ['*']);
 
     final result = switch (T) {
       dynamic => _manager.request.commitWithoutModel<T?>(query: _selectClauses.nonNulls.join(' '), first: true),
@@ -213,6 +222,17 @@ class QueryBuilder<T> implements SelectContract<T>, InsertContract<T>, UpdateCon
 
   @override
   Future<T> save () async {
+    final model = _manager.resolveOrNull<T>();
+
+    if (model != null) {
+      final builder = ModelBuilder()
+        ..bucket.addAll(structure.clauses.insert?.payload);
+
+      model.hooks.beforeCreate(builder);
+      
+      structure.clauses.insert?.payload = builder.bucket;
+    }
+
     final query = [
       structure.clauses.insert?.query,
       ...structure.clauses.where.map((e) => e.query),

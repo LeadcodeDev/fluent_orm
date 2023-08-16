@@ -1,6 +1,7 @@
 import 'package:fluent_orm/contracts/query_builder_contract.dart';
 import 'package:fluent_orm/entities/model_wrapper.dart';
 import 'package:fluent_orm/fluent_manager.dart';
+import 'package:fluent_orm/query_builder/model_query_builder.dart';
 import 'package:fluent_orm/query_builder/query_builder.dart';
 
 class Database<T> {
@@ -15,11 +16,11 @@ class Database<T> {
     return database;
   }
 
-  QueryBuilder<M> forModel<M> () {
+  QueryBuilder<M> model<M> () {
     final ModelWrapper model = _manager.resolve<M>();
     final Database<M> database = Database<M>();
 
-    database._builder = QueryBuilder<M>(manager: _manager, model: model);
+    database._builder = ModelQueryBuilder<M>(manager: _manager, model: model);
     database._builder.from(_manager.resolve<M>().tableName);
 
     return database._builder;
@@ -41,10 +42,9 @@ class Database<T> {
     return _builder;
   }
 
-  UpdateContract<T> update({ required String tableName, required Map<String, dynamic> data }) {
+  UpdateContract<T> update(Map<String, dynamic> data) {
     return _builder
-      ..update(data)
-      ..into(tableName);
+      ..update(data);
   }
 
   DeleteContract<T> delete({ required String table }) {

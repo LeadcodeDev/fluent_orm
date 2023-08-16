@@ -67,7 +67,11 @@ class DatabaseSchema {
     }
   }
 
-  Future dropTable (String tableName) async {
+  Future<void> renameTable (String tableName, String newName) async {
+    await _client.execute('ALTER TABLE $tableName RENAME TO $newName;');
+  }
+
+  Future<void> dropTable (String tableName) async {
     await _client.execute('DROP TABLE $tableName;');
   }
 

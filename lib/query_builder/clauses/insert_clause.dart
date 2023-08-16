@@ -4,7 +4,7 @@ import 'package:fluent_orm/query_builder/clauses/values_clause.dart';
 
 class InsertClause extends Clause {
   final String tableName;
-  final dynamic payload;
+  dynamic payload;
 
   InsertClause(this.tableName, this.payload): super(ClauseToken.insert);
 

@@ -14,6 +14,7 @@ class CategorySchema1691342071 extends Schema {
 
   @override
   Future<void> down () async {
+    schema.renameTable(tableName, 'categories_backup');
     schema.dropTable(tableName);
   }
 }

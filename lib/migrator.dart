@@ -21,7 +21,7 @@ class Migrator {
   }
 
   Future<List<FluentSchema>> _getMigratedSchema ({ int? batch }) async {
-    final builder = _database().forModel<FluentSchema>().select();
+    final builder = _database().model<FluentSchema>().select();
     if (batch != null) {
       builder.where(column: 'batch', value: batch);
     }
@@ -55,7 +55,7 @@ class Migrator {
     for (final migration in notMigrated) {
       await migration.up();
 
-      await _database().forModel<FluentSchema>().insert({
+      await _database().model<FluentSchema>().insert({
         'name': migration.runtimeType.toString().snakeCase,
         'batch': lastBatch + 1,
         'migration_time': DateTime.now().toIso8601String()
@@ -82,7 +82,7 @@ class Migrator {
     for (final migration in migrations) {
       await migration.down();
 
-      await _database().forModel<FluentSchema>()
+      await _database().model<FluentSchema>()
         .where(column: 'name', value: migration.runtimeType.toString().snakeCase)
         .del();
     }

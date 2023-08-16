@@ -24,6 +24,7 @@ abstract interface class UpdateContract<T> {
   UpdateContract<T> andWhere({ required String column, String? operator = '=', required dynamic value });
   UpdateContract<T> orWhere({ required String column, String? operator = '=', required dynamic value });
   UpdateContract<T> returning(List<String> columns);
+  UpdateContract<T> table(String tableName);
   Future<T> put();
 }
 

@@ -39,14 +39,18 @@ class FluentManager {
     final String modelName = instance.runtimeType.toString().snakeCase;
 
     if (!models.containsKey(instance.runtimeType)) {
-      models.putIfAbsent(instance.runtimeType, () => ModelWrapper(
+      final modelWrapper = ModelWrapper(
         instance.runtimeType,
         Pluralize().plural(modelName),
         modelName,
         constructor,
-        (instance.properties as DeclareProperty).properties,
-        (instance.relations as DeclareRelation).relations
-      ));
+        (instance.relations as DeclareRelation).relations,
+        instance.hooks,
+        instance.builder,
+      );
+
+
+      models.putIfAbsent(instance.runtimeType, () => modelWrapper);
     }
   }
 

@@ -4,10 +4,7 @@ import 'package:fluent_orm/query_builder/declarations/relation.dart';
 import 'article.dart';
 
 final class Category extends Model<Category> {
-  Category(): super(
-    properties: ['id', 'label', 'description'],
-    relations: [Relation<Article>.hasMany()]
-  );
+  Category(): super(relations: [Relation<Article>.hasMany()]);
 
   int get id => properties.get('id');
   String get label => properties.get('label');

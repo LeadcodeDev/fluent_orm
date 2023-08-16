@@ -43,8 +43,9 @@ class RelatedModel<T, M extends Model, R extends RelationContract> {
       throw Exception('Relation is not HasMany');
     }
 
+    final relatedKey = '${Pluralize().singular(_baseModel.metadata.tableName)}_id';
     return Database.of(_manager).forModel<M>()
-      .insert(payload)
+      .insert({ ...payload, relatedKey: _baseModel.properties.get('id') })
       .save();
   }
 }

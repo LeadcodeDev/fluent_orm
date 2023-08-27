@@ -1,14 +1,12 @@
-import 'package:fluent_orm/database.dart';
+import 'package:fluent_orm/clients/common/abstract_provider.dart';
+import 'package:fluent_orm/clients/common/database.dart';
+import 'package:fluent_orm/clients/common/migrator.dart';
 import 'package:fluent_orm/database/models/fluent_schema.dart';
-import 'package:fluent_orm/entities/model.dart';
-import 'package:fluent_orm/entities/model_wrapper.dart';
-import 'package:fluent_orm/entities/request_manager.dart';
-import 'package:fluent_orm/entities/sql_client.dart';
-import 'package:fluent_orm/migrator.dart';
-import 'package:fluent_orm/query_builder/declarations/declare_property.dart';
-import 'package:fluent_orm/query_builder/declarations/declare_relation.dart';
-import 'package:fluent_orm/schema_builder/database_schema.dart';
-import 'package:fluent_orm/schema_builder/schema.dart';
+import 'package:fluent_orm/clients/common/model.dart';
+import 'package:fluent_orm/clients/common/model_wrapper.dart';
+import 'package:fluent_orm/clients/psql/query_builder/psql_request_manager.dart';
+import 'package:fluent_orm/clients/psql/schema/database_schema.dart';
+import 'package:fluent_orm/clients/common/schema.dart';
 import 'package:pluralize/pluralize.dart';
 import 'package:recase/recase.dart';
 
@@ -17,10 +15,10 @@ class FluentManager {
   final List<Schema> migrations = [];
 
   late final RequestManager request;
-  late final SqlClient client;
+  late final AbstractProvider provider;
   late final Migrator migrator;
 
-  FluentManager({ required this.client, List<Model Function()> models = const [], List<Schema Function()> migrations = const [] }) {
+  FluentManager({ required this.provider, List<Model Function()> models = const [], List<Schema Function()> migrations = const [] }) {
     for (final migration in migrations) {
       _registerMigration(migration);
     }
@@ -31,7 +29,7 @@ class FluentManager {
     }
 
     request = RequestManager(this);
-    migrator = Migrator(client, this.migrations, () => Database.of(this));
+    migrator = Migrator(provider, this.migrations, () => Database.of(this));
   }
 
   void _registerModel (Function() constructor) {
@@ -39,16 +37,20 @@ class FluentManager {
     final String modelName = instance.runtimeType.toString().snakeCase;
 
     if (!models.containsKey(instance.runtimeType)) {
+      final internalModel = instance.model as InternalModel;
+      final relations = internalModel.relations.relations
+          .map((e) => e..manager = this)
+          .toList();
+
       final modelWrapper = ModelWrapper(
         instance.runtimeType,
+        instance.primaryKey,
         Pluralize().plural(modelName),
         modelName,
         constructor,
-        (instance.relations as DeclareRelation).relations,
-        instance.hooks,
-        instance.builder,
+        relations,
+        internalModel.hooks
       );
-
 
       models.putIfAbsent(instance.runtimeType, () => modelWrapper);
     }
@@ -56,7 +58,7 @@ class FluentManager {
 
   void _registerMigration (Function() constructor) {
     final Schema instance = constructor()
-      ..schema = DatabaseSchema(client, Database.of(this));
+      ..schema = DatabaseSchema(provider, Database.of(this));
 
     migrations.add(instance);
   }
@@ -71,4 +73,12 @@ class FluentManager {
   }
 
   ModelWrapper? resolveOrNull<T>() => models[T];
+
+  ModelWrapper resolveFromType (Type type) {
+    final ModelWrapper? model = models[type];
+    return switch (model) {
+      ModelWrapper() => model,
+      _ => throw Exception('Model not found'),
+    };
+  }
 }

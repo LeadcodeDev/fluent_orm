@@ -1,9 +1,11 @@
-import 'package:fluent_orm/schema_builder/schema.dart';
+import 'package:fluent_orm/clients/common/schema.dart';
 
 class FluentSchemaMigration extends Schema {
+  final String tableName = 'fluent_schemas';
+
   @override
   Future<void> up() async{
-    schema.createTable('fluent_schemas', (table) {
+    schema.createTable(tableName, (table) {
       table.increments('id');
       table.string('name').notNullable();
       table.integer('batch').notNullable();
@@ -13,6 +15,6 @@ class FluentSchemaMigration extends Schema {
 
   @override
   Future<void> down() async {
-
+    schema.dropTable(tableName);
   }
 }

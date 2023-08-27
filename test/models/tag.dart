@@ -1,6 +1,5 @@
-import 'package:fluent_orm/entities/model.dart';
+import 'package:fluent_orm/clients/common/model.dart';
 
 final class Tag extends Model<Tag> {
-  int get id => properties.get('id');
-  String get label => properties.get('label');
+  String get label => model.property('label');
 }

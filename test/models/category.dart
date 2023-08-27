@@ -1,13 +1,12 @@
-import 'package:fluent_orm/entities/model.dart';
-import 'package:fluent_orm/query_builder/declarations/relation.dart';
+import 'package:fluent_orm/clients/common/declarations/relation.dart';
+import 'package:fluent_orm/clients/common/model.dart';
 
 import 'article.dart';
 
 final class Category extends Model<Category> {
   Category(): super(relations: [Relation<Article>.hasMany()]);
 
-  int get id => properties.get('id');
-  String get label => properties.get('label');
-  String get description => properties.get('description');
-  List<Article> get articles => relations.hasMany<Article>();
+  String get label => model.property('label');
+  String get description => model.property('description');
+  List<Article> get articles => model.hasMany<Article>();
 }

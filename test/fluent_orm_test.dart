@@ -1,10 +1,7 @@
-import 'package:fluent_orm/clients/postgres_client.dart';
-import 'package:fluent_orm/database.dart';
+import 'package:fluent_orm/providers/postgres_provider.dart';
+import 'package:fluent_orm/clients/common/database.dart';
 import 'package:fluent_orm/fluent_manager.dart';
-import 'package:fluent_orm/mock/model_factory.dart';
-import 'package:fluent_orm/query_builder/relations/belong_to.dart';
-import 'package:fluent_orm/query_builder/relations/has_many.dart';
-import 'package:fluent_orm/query_builder/relations/many_to_many.dart';
+import 'package:fluent_orm/clients/common/declarations/relation.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 import 'package:faker/faker.dart';
@@ -21,7 +18,7 @@ import 'models/tag.dart';
 Future<void> main() async {
   final faker = Faker();
   late final FluentManager manager;
-  late final TestFactory factory;;
+  late final TestFactory factory;
 
   setUpAll(() async {
     manager =  FluentManager(
@@ -32,7 +29,7 @@ Future<void> main() async {
         TagSchema1691342072.new,
         ArticleTagSchema1691342072.new,
       ],
-      client: PostgresClient(
+      provider: PostgresProvider(
         database: 'bot',
         host: 'localhost',
         user: 'postgres',
@@ -41,7 +38,7 @@ Future<void> main() async {
       )
     );
 
-    await expectLater(manager.client.connect(), completes);
+    await expectLater(manager.provider.connect(), completes);
     factory = TestFactory(manager);
   });
 
@@ -51,7 +48,7 @@ Future<void> main() async {
   });
 
   test('create Manager with postgres client', () async {
-    expect(manager.client, isA<PostgresClient>());
+    expect(manager.provider, isA<PostgresProvider>());
   });
 
   test('fluent_schema table exists', () async {
@@ -61,153 +58,290 @@ Future<void> main() async {
     expect(result, equals(true));
   });
 
-  test('test', () async {
-    final article = await Database.of(manager).model<()
+  test('can insert one category without model', () async {
+    final result = await Database.of(manager).query()
+      .table('categories')
+      .returning(['*'])
+      .insert({
+        'label': faker.lorem.word(),
+        'description': faker.lorem.sentence(),
+      });
+
+    expect(result, isNotNull);
+    expect(result, isA<Map>());
   });
 
-  // test('can insert one category without model', () async {
-  //   final result = await Database.of(manager)
-  //     .insert(tableName: 'categories', data:  {
-  //       'label': faker.lorem.word(),
-  //       'description': faker.lorem.sentence(),
-  //     }).save();
-  //
-  //   expect(result, isNotNull);
-  //   expect(result, isA<Map>());
-  // });
-  //
-  // test('can insert one category with model', () async {
-  //   final category = await factory.category.make();
-  //
-  //   expect(category.model, isNotNull);
-  //   expect(category.model.label, equals(category.payload['label']));
-  //   expect(category.model.description, equals(category.payload['description']));
-  // });
-  //
-  // test('get one category without defined model', () async {
-  //   final category = await factory.category.make();
-  //
-  //   final result = await Database.of(manager)
-  //     .select(table: 'categories')
-  //     .where(column: 'id', value: category.model.id)
-  //     .first();
-  //
-  //   await Database.of(manager).update({})
-  //     .table('categories')
-  //     .where(column: 'id', value: category.model.id)
-  //     .put();
-  //
-  //   expect(result, isNotNull);
-  //   expect(result, isA<Map>());
-  // });
-  //
-  // test('get one category with defined model', () async {
-  //   final category = await factory.category.make();
-  //
-  //   final result = await Database.of(manager)
-  //     .forModel<Category>()
-  //     .where(column: 'id', value: category.model.id)
-  //     .first();
-  //
-  //   expect(result, isNotNull);
-  //   expect(result, isA<Category>());
-  //   expect(result?.id, isA<int>());
-  // });
-  //
-  // test('can insert many categories', () async {
-  //   final int count = 5;
-  //   final categories = await factory.category.makeMany(count);
-  //
-  //   expect(categories, isA<List>());
-  //   expect(categories, hasLength(count));
-  // });
-  //
-  // test('can update one category', () async {
-  //   final category = await factory.category.make();
-  //
-  //   final description = faker.lorem.sentence();
-  //   final result = await category.model.update({ 'description': description });
-  //
-  //   expect(result, isA<Category>());
-  //   expect(result.description, equals(description));
-  // });
-  //
-  // test('can preload belongTo relation based on model', () async {
-  //   final category = await factory.category.make();
-  //   final article = await factory.article.make();
-  //
-  //   final result = await Database.of(manager)
-  //     .forModel<Article>()
-  //     .where(column: 'id', value: article.model.id)
-  //     .preload<Category, BelongTo>()
-  //     .firstOrFail();
-  //
-  //   expect(result.category, allOf([isNotNull, isA<Category>()]));
-  //   expect(result.category.label, category.model.label);
-  // });
-  //
-  // test('can preload hasMany relation based on model', () async {
-  //   final int articleCount = 5;
-  //   final category = await factory.category.make();
-  //
-  //   await factory.article.makeMany(articleCount, mergeWith: { 'category_id': category.model.id });
-  //
-  //   final result = await Database.of(manager)
-  //     .forModel<Category>()
-  //     .where(column: 'id', value: category.model.id)
-  //     .preload<Article, HasMany>()
-  //     .firstOrFail();
-  //
-  //   expect(result.articles, allOf([
-  //     isNotNull,
-  //     isA<List<Article>>(),
-  //     hasLength(articleCount)
-  //   ]));
-  // });
-  //
-  // test('can associate manyToMany relation based on model', () async {
-  //   final int tagCount = 5;
-  //
-  //   final article = await factory.article.make();
-  //   final tags = await factory.tag.makeMany(tagCount);
-  //
-  //   final Iterable<int> ids = tags.map((e) => e.model.id);
-  //   final query = article.model
-  //     .related<Tag, ManyToMany>()
-  //     .associate(ids);
-  //
-  //   expectLater(query, completes);
-  // });
-  //
-  // test('can create from related model based on model', () async {
-  //   final category = await factory.category.make();
-  //
-  //   final payload = {
-  //     'title': faker.lorem.sentence(),
-  //     'content': faker.lorem.sentence()
-  //   };
-  //
-  //   final article = await category.model
-  //     .related<Article, HasMany>()
-  //     .create(payload);
-  //
-  //   expect(article, allOf([isNotNull, isA<Article>(),
-  //     predicate((Article article) => (article.title == payload['title'])),
-  //     predicate((Article article) => (article.content == payload['content'])),
-  //   ]));
-  // });
-  //
-  // test('can delete row with defined model', () async {
-  //   final category = await factory.category.make();
-  //
-  //   await expectLater(category.model.delete(), completes);
-  //
-  //   final result = await Database.of(manager)
-  //     .forModel<Category>()
-  //     .where(column: 'id', value: category.model.id)
-  //     .all();
-  //
-  //   expect(result, isA<List>());
-  //   expect(result, hasLength(0));
-  // });
+  test('can insert one category with model', () async {
+    final category = await factory.category.make();
+
+    expect(category.model, isNotNull);
+    expect(category.model.label, equals(category.payload['label']));
+    expect(category.model.description, equals(category.payload['description']));
+  });
+
+  test('get one category without defined model', () async {
+    final category = await factory.category.make();
+
+    final result = await Database.of(manager).query()
+      .select()
+      .from('categories')
+      .where(column: 'id', value: category.model.id)
+      .first();
+
+    expect(result, isA<Map<String, dynamic>>());
+  });
+
+  test('get one category with defined model', () async {
+    final category = await factory.category.make();
+
+    final result = await Database.of(manager)
+      .model<Category>()
+      .find(category.model.id);
+
+    expect(result, isNotNull);
+    expect(result, isA<Category>());
+    expect(result?.id, isA<int>());
+  });
+
+  test('can insert many categories', () async {
+    final int count = 5;
+    final categories = await factory.category.makeMany(count);
+
+    expect(categories, isA<List>());
+    expect(categories, hasLength(count));
+  });
+
+  test('can update one category', () async {
+    final category = await factory.category.make();
+
+    final description = faker.lorem.sentence();
+    final result = await category.model.update({ 'description': description });
+
+    expect(result, isA<Category>());
+    expect(result.description, equals(description));
+  });
+
+  test('can get all articles', () async {
+    final int articleCount = 5;
+    await factory.article.makeMany(articleCount);
+
+    final articles = await Database.of(manager)
+      .model<Article>()
+      .all();
+
+    expect(articles, allOf([
+      isNotEmpty,
+      isA<List<Article>>(),
+      hasLength(articleCount),
+    ]));
+  });
+
+  test('find with an valid id cannot be nullable', () async {
+    final article = await factory.article.make();
+    final result = await Database.of(manager)
+      .model<Article>()
+      .findBy(column: 'id', value: article.model.id);
+
+    expect(result, allOf([
+      isNotNull,
+      isA<Article>(),
+    ]));
+  });
+
+  test('find with an invalid id can be nullable', () async {
+    await factory.article.make();
+    final result = await Database.of(manager)
+      .model<Article>()
+      .findBy(column: 'id', value: 2);
+
+    expect(result, isNull);
+  });
+
+  test('can findBy with an valid column id', () async {
+    final article = await factory.article.make();
+    final result = await Database.of(manager)
+      .model<Article>()
+      .find(article.model.id);
+
+    expect(result, allOf([
+      isNotNull,
+      isA<Article>(),
+    ]));
+  });
+
+  test('nullable findBy with an invalid column id', () async {
+    await factory.article.make();
+    final result = await Database.of(manager)
+      .model<Article>()
+      .find(2);
+
+    expect(result, isNull);
+  });
+
+  test('can findOrFail with an valid id', () async {
+    final article = await factory.article.make();
+    final result = await Database.of(manager)
+      .model<Article>()
+      .findOrFail(article.model.id);
+
+    expect(result, allOf([
+      isNotNull,
+      isA<Article>(),
+    ]));
+  });
+
+  test('cannot findOrFail with an invalid id', () async {
+    await factory.article.make();
+    final result = Database.of(manager)
+      .model<Article>()
+      .findOrFail(2);
+
+    await expectLater(result, throwsA(isA<Exception>()));
+  });
+
+  test('can findByOrFail with an valid id', () async {
+    final article = await factory.article.make();
+    final result = await Database.of(manager)
+      .model<Article>()
+      .findByOrFail(column: 'id', value: article.model.id);
+
+    expect(result, allOf([
+      isNotNull,
+      isA<Article>(),
+    ]));
+  });
+
+  test('cannot findByOrFail with an invalid id', () async {
+    await factory.article.make();
+    final result = Database.of(manager)
+      .model<Article>()
+      .findByOrFail(column: 'id', value: 2);
+
+    await expectLater(result, throwsA(isA<Exception>()));
+  });
+
+  test('can preload belongTo relation based on model', () async {
+    final category = await factory.category.make();
+    final article = await factory.article.make();
+
+    final result = await Database.of(manager).model<Article>().query()
+      .where(column: 'id', value: article.model.id)
+      .preload<Category, BelongTo>()
+      .first();
+
+    expect(result?.category, allOf([isNotNull, isA<Category>()]));
+    expect(result?.category.label, category.model.label);
+  });
+
+  test('can preload ManyToMany relation based on model', () async {
+    final int articleCount = 5;
+    final category = await factory.category.make();
+
+    await factory.article.makeMany(articleCount, mergeWith: { 'category_id': category.model.id });
+
+    final result = await Database.of(manager).model<Category>().query()
+      .where(column: 'id', value: category.model.id)
+      .preload<Article, HasMany>()
+      .first();
+
+    expect(result?.articles, allOf([
+      isNotNull,
+      isA<List<Article>>(),
+      hasLength(articleCount)
+    ]));
+  });
+
+  test('can preload hasMany relation based on model', () async {
+    final int tagCount = 5;
+    final article = await factory.article.make();
+    final List<int> ids = await factory.tag.makeMany(tagCount)
+      .then((tags) => tags.map((tag) => tag.model.id).toList());
+
+    await article.model
+      .related<Tag, ManyToMany>()
+      .associate(ids);
+
+    final result = await Database.of(manager).model<Article>().query()
+      .preload<Tag, ManyToMany>()
+      .first();
+
+    expect(result?.tags, allOf([
+      isNotNull,
+      isA<List<Tag>>(),
+      hasLength(tagCount)
+    ]));
+  });
+
+  test('can associate manyToMany relation based on model', () async {
+    final int tagCount = 5;
+
+    final article = await factory.article.make();
+    final tags = await factory.tag.makeMany(tagCount);
+
+    final Iterable<int> ids = tags.map((e) => e.model.id);
+    final query = article.model
+      .related<Tag, ManyToMany>()
+      .associate(ids);
+
+    expectLater(query, completes);
+  });
+
+  test('can dissociate manyToMany relation based on model', () async {
+    final int tagCount = 5;
+
+    final article = await factory.article.make();
+    final tags = await factory.tag.makeMany(tagCount);
+
+    final Iterable<int> ids = tags.map((e) => e.model.id);
+    await article.model
+      .related<Tag, ManyToMany>()
+      .associate(ids);
+
+    final dissociate = article.model
+      .related<Tag, ManyToMany>()
+      .dissociate(ids);
+
+    await expectLater(dissociate, completes);
+
+    final result = await Database.of(manager).model<Article>().query()
+      .preload<Tag, ManyToMany>()
+      .first();
+
+    expect(result?.tags, allOf([
+      isNotNull,
+      isA<List<Tag>>(),
+      hasLength(0)
+    ]));
+  });
+
+  test('can create from related model based on model', () async {
+    final category = await factory.category.make();
+
+    final payload = {
+      'title': faker.lorem.sentence(),
+      'content': faker.lorem.sentence()
+    };
+
+    final article = await category.model
+      .related<Article, HasMany>()
+      .create(payload);
+
+    expect(article, allOf([isNotNull, isA<Article>(),
+      predicate((Article article) => (article.title == payload['title'])),
+      predicate((Article article) => (article.content == payload['content'])),
+    ]));
+  });
+
+  test('can delete row with defined model', () async {
+    final category = await factory.category.make();
+
+    await expectLater(category.model.delete(), completes);
+
+    final result = await Database.of(manager).model<Category>().query()
+      .where(column: 'id', value: category.model.id)
+      .fetch();
+
+    expect(result, isA<List>());
+    expect(result, hasLength(0));
+  });
 }

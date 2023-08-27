@@ -1,24 +1,29 @@
-import 'package:fluent_orm/entities/model.dart';
-import 'package:fluent_orm/hook_model.dart';
-import 'package:fluent_orm/query_builder/declarations/relation.dart';
+import 'package:fluent_orm/clients/common/declarations/relation.dart';
+import 'package:fluent_orm/clients/common/model.dart';
+import 'package:fluent_orm/clients/common/hook_model.dart';
 
 import 'category.dart';
+import 'tag.dart';
 
 final class Article extends Model<Article> {
   Article(): super(
-    relations: [Relation<Category>.belongTo()],
-    // hooks: HookModel(
-    //   beforeCreate: beforeCreate
-    // )
+    relations: [
+      Relation<Category>.belongTo(),
+      Relation<Tag>.manyToMany()
+    ],
+    hooks: HookModel(
+      beforeCreate: [beforeCreate]
+    )
   );
 
-  static void beforeCreate (article) {
+  static Future<void> beforeCreate (article) async {
     article.title = 'Before Create';
     article.content = 'Before Create Content';
   }
 
-  int get id => properties.get('id');
-  String get title => properties.get('title');
-  String get content => properties.get('content');
-  Category get category => relations.belongTo<Category>();
+  String get title => model.property('title');
+  String get content => model.property('content');
+
+  Category get category => model.belongTo<Category>();
+  List<Tag> get tags => model.manyToMany<Tag>();
 }

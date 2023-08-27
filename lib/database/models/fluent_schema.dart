@@ -1,8 +1,7 @@
-import 'package:fluent_orm/entities/model.dart';
+import 'package:fluent_orm/clients/common/model.dart';
 
 class FluentSchema extends Model {
-  int get id => properties.get('id');
-  String get name => properties.get('name');
-  int get batch => properties.get('batch');
-  String get migrationTime => properties.get('migration_time');
+  String get name => model.property('name');
+  int get batch => model.property('batch');
+  String get migrationTime => model.property('migration_time');
 }

@@ -1,6 +1,4 @@
-import 'package:fluent_orm/schema_builder/schema.dart';
-
-import '../models/tag.dart';
+import 'package:fluent_orm/clients/common/schema.dart';
 
 class TagSchema1691342072 extends Schema {
   final String tableName = 'tags';
@@ -10,12 +8,6 @@ class TagSchema1691342072 extends Schema {
     schema.createTable(tableName, (table) {
       table.increments('id');
       table.string('label').notNullable();
-    });
-
-    schema.defer((database) async {
-      await database.forModel<Tag>()
-        .insert({ 'label': 'miaou' })
-        .save();
     });
   }
 

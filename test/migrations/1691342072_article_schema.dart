@@ -1,6 +1,4 @@
-import 'package:fluent_orm/schema_builder/schema.dart';
-
-import '../models/article.dart';
+import 'package:fluent_orm/clients/common/schema.dart';
 
 class ArticleSchema1691342072 extends Schema {
   final String tableName = 'articles';

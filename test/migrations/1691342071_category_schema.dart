@@ -1,4 +1,4 @@
-import 'package:fluent_orm/schema_builder/schema.dart';
+import 'package:fluent_orm/clients/common/schema.dart';
 
 class CategorySchema1691342071 extends Schema {
   final String tableName = 'categories';

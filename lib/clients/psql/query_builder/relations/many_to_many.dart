@@ -8,7 +8,7 @@ import 'package:fluent_orm/clients/common/declarations/relation.dart';
 import 'package:fluent_orm/clients/common/model.dart';
 import 'package:fluent_orm/clients/common/model_wrapper.dart';
 import 'package:fluent_orm/clients/common/query_structure.dart';
-import 'package:fluent_orm/clients/psql/query_builder/relations/abstract_relation.dart';
+import 'package:fluent_orm/clients/common/abstract_relation.dart';
 import 'package:pluralize/pluralize.dart';
 
 class ManyToManyRelation<T extends Model> implements AbstractRelation<T> {

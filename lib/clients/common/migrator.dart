@@ -1,7 +1,7 @@
 import 'package:fluent_orm/clients/common/database.dart';
+import 'package:fluent_orm/clients/common/database/migrations/fluent_schema_migration.dart';
+import 'package:fluent_orm/clients/common/database/models/fluent_schema.dart';
 import 'package:fluent_orm/clients/common/schema.dart';
-import 'package:fluent_orm/database/migrations/fluent_schema_migration.dart';
-import 'package:fluent_orm/database/models/fluent_schema.dart';
 import 'package:fluent_orm/clients/common/abstract_provider.dart';
 import 'package:recase/recase.dart';
 

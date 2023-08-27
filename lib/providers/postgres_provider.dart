@@ -4,7 +4,7 @@ import 'package:fluent_orm/clients/common/database.dart';
 import 'package:fluent_orm/clients/common/model_wrapper.dart';
 import 'package:fluent_orm/clients/psql/query_builder/psql_model_query_builder.dart';
 import 'package:fluent_orm/clients/psql/query_builder/psql_query_builder.dart';
-import 'package:fluent_orm/clients/psql/schema/database_schema.dart';
+import 'package:fluent_orm/clients/psql/schema/psql_database_schema.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:postgres/postgres.dart';
 
@@ -34,7 +34,7 @@ class PostgresProvider extends AbstractProvider {
     PsqlModelQueryBuilder<T>(manager, model);
 
   @override
-  AbstractDatabaseSchema makeSchema (Database database) => DatabaseSchema(this, database);
+  AbstractDatabaseSchema makeSchema (Database database) => PsqlDatabaseSchema(this, database);
 
   @override
   Future<void> connect() async {

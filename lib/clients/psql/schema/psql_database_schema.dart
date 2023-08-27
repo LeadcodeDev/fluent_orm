@@ -1,19 +1,19 @@
-import 'package:fluent_orm/clients/psql/schema/alter_table.dart';
-import 'package:fluent_orm/clients/psql/schema/create_table.dart';
+import 'package:fluent_orm/clients/psql/schema/psql_alter_table.dart';
+import 'package:fluent_orm/clients/psql/schema/psql_create_table.dart';
 import 'package:fluent_orm/clients/common/database.dart';
 import 'package:fluent_orm/clients/common/abstract_database_schema.dart';
 import 'package:fluent_orm/clients/common/abstract_provider.dart';
 
-class DatabaseSchema implements AbstractDatabaseSchema {
+class PsqlDatabaseSchema implements AbstractDatabaseSchema {
   final AbstractProvider _provider;
   final Database _database;
   final List<Future<void> Function()> deferred = [];
 
-  DatabaseSchema(this._provider, this._database);
+  PsqlDatabaseSchema(this._provider, this._database);
 
   @override
-  Future createTable (String tableName, Function(CreateTable table) schema) async {
-    final table = CreateTable();
+  Future createTable (String tableName, Function(PsqlCreateTable table) schema) async {
+    final table = PsqlCreateTable();
     schema(table);
 
     final columns = table.columnStructure.map((e) => e.query).join(', ');
@@ -38,8 +38,8 @@ class DatabaseSchema implements AbstractDatabaseSchema {
   }
 
   @override
-  Future<void> alterTable (String tableName, Function(AlterTable table) schema) async {
-    final table = AlterTable();
+  Future<void> alterTable (String tableName, Function(PsqlAlterTable table) schema) async {
+    final table = PsqlAlterTable();
     schema(table);
 
     final columns = table.columnStructure.map((e) => e.query).join(', ');

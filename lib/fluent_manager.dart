@@ -1,11 +1,10 @@
 import 'package:fluent_orm/clients/common/abstract_provider.dart';
 import 'package:fluent_orm/clients/common/database.dart';
+import 'package:fluent_orm/clients/common/database/models/fluent_schema.dart';
 import 'package:fluent_orm/clients/common/migrator.dart';
-import 'package:fluent_orm/database/models/fluent_schema.dart';
 import 'package:fluent_orm/clients/common/model.dart';
 import 'package:fluent_orm/clients/common/model_wrapper.dart';
 import 'package:fluent_orm/clients/psql/query_builder/psql_request_manager.dart';
-import 'package:fluent_orm/clients/psql/schema/database_schema.dart';
 import 'package:fluent_orm/clients/common/schema.dart';
 import 'package:pluralize/pluralize.dart';
 import 'package:recase/recase.dart';
@@ -58,7 +57,7 @@ class FluentManager {
 
   void _registerMigration (Function() constructor) {
     final Schema instance = constructor()
-      ..schema = DatabaseSchema(provider, Database.of(this));
+      ..schema = provider.makeSchema(Database.of(this));
 
     migrations.add(instance);
   }

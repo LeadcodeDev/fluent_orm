@@ -1,6 +1,4 @@
-import 'package:fluent_orm/clients/common/declarations/relation.dart';
-import 'package:fluent_orm/clients/common/model.dart';
-import 'package:fluent_orm/clients/common/hook_model.dart';
+import 'package:fluent_orm/database/model.dart';
 
 import 'category.dart';
 import 'tag.dart';

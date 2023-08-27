@@ -1,5 +1,5 @@
 import 'package:fluent_orm/clients/common/abstract_column_type.dart';
-import 'package:fluent_orm/clients/psql/schema/abstract_table.dart';
+import 'package:fluent_orm/clients/psql/schema/abstract_psql_table.dart';
 import 'package:fluent_orm/clients/psql/schema/column_modifiers/default_to_modifier.dart';
 import 'package:fluent_orm/clients/psql/schema/column_modifiers/not_nullable_modifier.dart';
 import 'package:fluent_orm/clients/psql/schema/column_modifiers/nullable_modifier.dart';
@@ -8,7 +8,7 @@ import 'package:fluent_orm/clients/psql/schema/column_modifiers/unique_modifier.
 import 'package:fluent_orm/clients/common/column_structure.dart';
 
 final class StringColumn extends ColumnStructure implements StringColumnContract {
-  final AbstractTable _table;
+  final AbstractPsqlTable _table;
   final String _columnName;
   final int _length;
   final bool isAlter;

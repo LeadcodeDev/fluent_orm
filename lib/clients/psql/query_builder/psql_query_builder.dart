@@ -1,3 +1,15 @@
+import 'package:fluent_orm/clients/psql/query_builder/clauses/and_where_between_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/and_where_in_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/and_where_not_between_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/and_where_not_in_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/or_where_between_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/or_where_in_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/or_where_not_between_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/or_where_not_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/or_where_not_in_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/where_between_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/where_not_between_clause.dart';
+import 'package:fluent_orm/clients/psql/query_builder/clauses/where_not_in_clause.dart';
 import 'package:fluent_orm/clients/psql/query_builder/psql_clause_structure.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/clients/common/abstract_standalone_query_builder.dart';
@@ -75,6 +87,190 @@ class PsqlQueryBuilder<T> implements AbstractStandaloneQueryBuilder<T> {
   @override
   PsqlQueryBuilder<T> whereIn({ required String column, required List values }) {
     _structure.clauses.where.add(WhereInClause(column, values));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> andWhereNull({ required String column }) {
+    if (_structure.clauses.where.isEmpty) {
+      return where(column: column, operator: 'IS', value: 'NULL');
+    }
+
+    _structure.clauses.where.add(AndWhereClause(column, 'IS', 'NULL'));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> andWhereBetween({required String column, required start, required end}) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereBetween(column: column, start: start, end: end);
+    }
+
+    _structure.clauses.where.add(AndWhereBetweenClause(column, start, end));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> andWhereIn({required String column, required List values }) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereIn(column: column, values: values);
+    }
+
+    _structure.clauses.where.add(AndWhereInClause(column, values));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> andWhereNot({required String column, required dynamic value }) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereNot(column: column, value: value);
+    }
+
+    _structure.clauses.where.add(AndWhereClause(column, 'NOT', value));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> andWhereNotBetween({required String column, required start, required end}) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereBetween(column: column, start: start, end: end);
+    }
+
+    _structure.clauses.where.add(AndWhereNotBetweenClause(column, start, end));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> andWhereNotIn({required String column, required List values}) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereNotIn(column: column, values: values);
+    }
+
+    _structure.clauses.where.add(AndWhereNotInClause(column, values));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> andWhereNotNull({required String column}) {
+    if (_structure.clauses.where.isEmpty) {
+      return where(column: column, operator: '=', value: null);
+    }
+
+    _structure.clauses.where.add(AndWhereClause(column, 'IS NOT', null));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> orWhereBetween({required String column, required int start, required int end}) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereBetween(column: column, start: start, end: end);
+    }
+
+    _structure.clauses.where.add(OrWhereBetweenClause(column, start, end));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> orWhereIn({required String column, required List values}) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereIn(column: column, values: values);
+    }
+
+    _structure.clauses.where.add(OrWhereInClause(column, values));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> orWhereNot({required String column, required value }) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereNot(column: column, value: value);
+    }
+
+    _structure.clauses.where.add(OrWhereNotClause(column, value));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> orWhereNotBetween({required String column, required int start, required int end}) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereBetween(column: column, start: start, end: end);
+    }
+
+    _structure.clauses.where.add(OrWhereNotBetweenClause(column, start, end));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> orWhereNotIn({required String column, required List values}) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereNotIn(column: column, values: values);
+    }
+
+    _structure.clauses.where.add(OrWhereNotInClause(column, values));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> orWhereNotNull({required String column}) {
+    if (_structure.clauses.where.isEmpty) {
+      return where(column: column, operator: 'IS NOT', value: null);
+    }
+
+    _structure.clauses.where.add(OrWhereClause(column, 'IS NOT', null));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> orWhereNull({ required String column }) {
+    if (_structure.clauses.where.isEmpty) {
+      return whereNull(column: column);
+    }
+
+    _structure.clauses.where.add(OrWhereClause(column, 'IS', 'NULL'));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> whereBetween({required String column, required int start, required int end}) {
+    _structure.clauses.where.add(WhereBetweenClause(column, start, end));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> whereNot({required String column, required value}) {
+    _structure.clauses.where.add(WhereClause(column, 'IS NOT', value));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> whereNotBetween({required String column, required int start, required int end}) {
+    _structure.clauses.where.add(WhereNotBetweenClause(column, start, end));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> whereNotIn({required String column, required List values }) {
+    _structure.clauses.where.add(WhereNotInClause(column, values));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> whereNotNull({ required String column }) {
+    if (_structure.clauses.where.isEmpty) {
+      return where(column: column, operator: 'IS NOT', value: null);
+    }
+
+    _structure.clauses.where.add(AndWhereClause(column, 'IS NOT', null));
+    return this;
+  }
+
+  @override
+  AbstractStandaloneQueryBuilder<T> whereNull({required String column}) {
+    if (_structure.clauses.where.isEmpty) {
+      return where(column: column, operator: 'IS', value: null);
+    }
+
+    _structure.clauses.where.add(AndWhereClause(column, 'IS', null));
     return this;
   }
 

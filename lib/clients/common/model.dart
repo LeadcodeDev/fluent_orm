@@ -49,10 +49,16 @@ abstract class Model<T> {
 
   String get primaryKey => 'id';
 
-  Model({ List<Relation>? relations, HookModel? hooks }) {
+  Model({ List<Relation>? relations, void Function (HookModelContract<T>)? hooks }) {
+    final hookModel = HookModel();
+
+    if (hooks != null) {
+      hooks(hookModel as HookModelContract<T>);
+    }
+
     this.model = InternalModel()
       ..relations = DeclareRelation(relations ?? [])
-      ..hooks = hooks ?? HookModel();
+      ..hooks = hookModel;
   }
 
   int get id => model.property(primaryKey);
@@ -65,18 +71,40 @@ abstract class Model<T> {
   Future<T> update (Map<String, String> payload) async {
     final internalModel = model as InternalModel;
 
-    return Database.of(internalModel.manager).model<T>().query()
+    final query = Database.of(internalModel.manager).model<T>().query()
       .table(model.metadata.tableName)
       .where(column: 'id', value: model.property('id'))
-      .returning(['*'])
-      .update(payload) as Future<T>;
+      .returning(['*']);
+
+    for (final hook in internalModel.hooks.beforeSaveHooks) {
+      hook(payload);
+    }
+
+    return query.update(payload).then((value) {
+      for (final hook in internalModel.hooks.afterSaveHooks) {
+        hook(query);
+      }
+
+      return value;
+    });
   }
 
   Future<void> delete () async {
     final internalModel = model as InternalModel;
 
-    return Database.of(internalModel.manager).model<T>().query()
-      .where(column: 'id', value: model.property('id'))
-      .del();
+    final query = Database.of(internalModel.manager).model<T>().query()
+      .where(column: 'id', value: model.property('id'));
+
+    for (final hook in internalModel.hooks.beforeDeleteHooks) {
+      hook(query);
+    }
+
+    return query.del().then((value) {
+      for (final hook in internalModel.hooks.afterDeleteHooks) {
+        hook();
+      }
+
+      return value;
+    });
   }
 }

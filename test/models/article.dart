@@ -9,15 +9,7 @@ final class Article extends Model<Article> {
       Relation<Category>.belongTo(),
       Relation<Tag>.manyToMany()
     ],
-    hooks: HookModel(
-      beforeCreate: [beforeCreate]
-    )
   );
-
-  static Future<void> beforeCreate (article) async {
-    article.title = 'Before Create';
-    article.content = 'Before Create Content';
-  }
 
   String get title => model.property('title');
   String get content => model.property('content');

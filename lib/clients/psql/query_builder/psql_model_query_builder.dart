@@ -30,28 +30,46 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
 
   @override
   Future<T> create(Map<String, dynamic> payload) async {
+    final modelWrapper = _manager.resolve<T>();
+
     _structure.clauses
       ..insert = InsertClause()
       ..into = IntoClause(_baseModel.tableName)
       ..values = ValuesClause(payload)
       ..returning = ReturningClause('*');
 
-    final query = _manager.request.buildInsertQuery(_structure);
+    for (final hook in modelWrapper.hooks.beforeCreateHooks) {
+      hook(payload);
+    }
 
+    final query = _manager.request.buildInsertQuery(_structure);
     final properties = await _manager.request.commit<Map<String, dynamic>>(query);
     final model = _manager.request.assignToModel<T>(properties!);
+
     _manager.request.applyPreloads(model, _structure.preloads);
+
+    for (final hook in modelWrapper.hooks.afterCreateHooks) {
+      hook(model);
+    }
 
     return model;
   }
 
   @override
   Future<List<T>> createMany(List<Map<String, dynamic>> payload) async {
+    final modelWrapper = _manager.resolve<T>();
+
     _structure.clauses
       ..insert = InsertClause()
       ..into = IntoClause(_baseModel.tableName)
       ..values = ValuesClause(payload)
       ..returning = ReturningClause('*');
+
+    for (final hook in modelWrapper.hooks.beforeCreateHooks) {
+      for (final element in payload) {
+        hook(element);
+      }
+    }
 
     final query = _manager.request.buildInsertQuery(_structure);
     final properties = await _manager.request.commit<List>(query);
@@ -61,16 +79,26 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
       _manager.request.applyPreloads(model, _structure.preloads);
     }
 
+    for (final hook in modelWrapper.hooks.afterCreateHooks) {
+      hook(models);
+    }
+
     return models;
   }
 
   @override
   Future<T?> find(dynamic value) async {
+    final modelWrapper = _manager.resolve<T>();
+
     _structure.clauses
       ..select = SelectClause(['*'])
       ..from = FromClause(_baseModel.tableName)
       ..where.add(WhereClause('id', '=', value))
       ..limit = LimitClause(1);
+
+    for (final hook in modelWrapper.hooks.beforeFindHooks) {
+      hook(this.query());
+    }
 
     final query = _manager.request.buildSelectQuery(_structure);
     final properties = await _manager.request.commit<Map<String, dynamic>>(query);
@@ -81,6 +109,10 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
 
     final model = _manager.request.assignToModel<T>(properties);
     _manager.request.applyPreloads(model, _structure.preloads);
+
+    for (final hook in modelWrapper.hooks.afterFindHooks) {
+      hook(model);
+    }
 
     return model;
   }
@@ -98,11 +130,17 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
 
   @override
   Future<T?> findBy({ required String column, String operator = '=', required dynamic value }) async {
+    final modelWrapper = _manager.resolve<T>();
+
     _structure.clauses
       ..select = SelectClause(['*'])
       ..from = FromClause(_baseModel.tableName)
       ..where.add(WhereClause(column, operator, value))
       ..limit = LimitClause(1);
+
+    for (final hook in modelWrapper.hooks.beforeFindHooks) {
+      hook(this.query());
+    }
 
     final query = _manager.request.buildSelectQuery(_structure);
     final properties = await _manager.request.commit<Map<String, dynamic>>(query);
@@ -113,6 +151,10 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
 
     final model = _manager.request.assignToModel<T>(properties);
     _manager.request.applyPreloads(model, _structure.preloads);
+
+    for (final hook in modelWrapper.hooks.afterFindHooks) {
+      hook(model);
+    }
 
     return model;
   }
@@ -130,10 +172,16 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
 
   @override
   Future<T?> first (dynamic value) async {
+    final modelWrapper = _manager.resolve<T>();
+
     _structure.clauses
       ..select = SelectClause(['*'])
       ..from = FromClause(_baseModel.tableName)
       ..limit = LimitClause(1);
+
+    for (final hook in modelWrapper.hooks.beforeFindHooks) {
+      hook(this.query());
+    }
 
     final query = _manager.request.buildSelectQuery(_structure);
     final properties = await _manager.request.commit<Map<String, dynamic>>(query);
@@ -144,6 +192,10 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
 
     final model = _manager.request.assignToModel<T>(properties);
     _manager.request.applyPreloads(model, _structure.preloads);
+
+    for (final hook in modelWrapper.hooks.afterFindHooks) {
+      hook(model);
+    }
 
     return model;
   }
@@ -161,9 +213,15 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
 
   @override
   Future<List<T>> all () async {
+    final modelWrapper = _manager.resolve<T>();
+
     _structure.clauses
       ..select = SelectClause(['*'])
       ..from = FromClause(_baseModel.tableName);
+
+    for (final hook in modelWrapper.hooks.beforeFetchHooks) {
+      hook(this.query());
+    }
 
     final query = _manager.request.buildSelectQuery(_structure);
     final properties = await _manager.request.commit<List>(query);
@@ -173,9 +231,14 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
       _manager.request.applyPreloads(model, _structure.preloads);
     }
 
+    for (final hook in modelWrapper.hooks.afterFetchHooks) {
+      hook(models);
+    }
+
     return models;
   }
 
+  @override
   Future<PsqlPagination<T>> paginate ({ required int page, int itemsPerPage = 10 }) =>
-      query().paginate(page: page, itemsPerPage: itemsPerPage) as Future<PsqlPagination<T>>;
+    query().paginate(page: page, itemsPerPage: itemsPerPage) as Future<PsqlPagination<T>>;
 }

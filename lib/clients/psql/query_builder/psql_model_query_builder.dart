@@ -1,4 +1,5 @@
 import 'package:fluent_orm/clients/psql/query_builder/psql_clause_structure.dart';
+import 'package:fluent_orm/clients/psql/query_builder/psql_pagination.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/clients/common/abstract_model_query_builder.dart';
 import 'package:fluent_orm/clients/common/abstract_standalone_query_builder.dart';
@@ -174,4 +175,7 @@ class PsqlModelQueryBuilder<T> implements AbstractModelQueryBuilder<T> {
 
     return models;
   }
+
+  Future<PsqlPagination<T>> paginate ({ required int page, int itemsPerPage = 10 }) =>
+      query().paginate(page: page, itemsPerPage: itemsPerPage) as Future<PsqlPagination<T>>;
 }

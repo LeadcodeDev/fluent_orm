@@ -1,6 +1,7 @@
 import 'package:fluent_orm/clients/common/abstract_query_builder.dart';
 import 'package:fluent_orm/clients/common/model.dart';
 import 'package:fluent_orm/clients/common/order.dart';
+import 'package:fluent_orm/clients/common/pagination.dart';
 
 import 'declarations/relation.dart';
 
@@ -53,4 +54,6 @@ abstract class AbstractStandaloneQueryBuilder<T> implements AbstractQueryBuilder
   Future<void> del ();
 
   AbstractStandaloneQueryBuilder<T> preload<M extends Model, R extends RelationContract> ({ void Function(AbstractStandaloneQueryBuilder<M> query)? query });
+
+  Future<Pagination<T>> paginate ({ required int page, int itemsPerPage = 10 });
 }

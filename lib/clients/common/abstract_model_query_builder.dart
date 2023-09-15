@@ -1,5 +1,6 @@
 import 'package:fluent_orm/clients/common/abstract_query_builder.dart';
 import 'package:fluent_orm/clients/common/abstract_standalone_query_builder.dart';
+import 'package:fluent_orm/clients/psql/query_builder/psql_pagination.dart';
 
 abstract class AbstractModelQueryBuilder<T> implements AbstractQueryBuilder<T> {
   AbstractStandaloneQueryBuilder<T> query();
@@ -16,4 +17,6 @@ abstract class AbstractModelQueryBuilder<T> implements AbstractQueryBuilder<T> {
   Future<T> firstOrFail (dynamic value);
 
   Future<List<T>> all ();
+
+  Future<PsqlPagination<T>> paginate ({ required int page, int itemsPerPage = 10 });
 }

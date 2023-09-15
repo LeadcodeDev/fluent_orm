@@ -1,3 +1,4 @@
+import 'package:fluent_orm/clients/common/pagination.dart';
 import 'package:fluent_orm/providers/postgres_provider.dart';
 import 'package:fluent_orm/clients/common/database.dart';
 import 'package:fluent_orm/fluent_manager.dart';
@@ -343,5 +344,148 @@ Future<void> main() async {
 
     expect(result, isA<List>());
     expect(result, hasLength(0));
+  });
+
+  test('try to paginate 5 results with 2 elements per page', () async {
+    final entries = 5;
+    final itemsPerPage = 2;
+
+    await factory.article.makeMany(entries);
+
+    final result = await Database.of(manager).model<Article>().query()
+      .paginate(page: 1, itemsPerPage: itemsPerPage);
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, hasLength(itemsPerPage));
+    expect(result.lastPage, (entries / itemsPerPage).ceil());
+  });
+
+  test('try to paginate the second page with next() with 2 elements per page', () async {
+    final entries = 5;
+    final itemsPerPage = 2;
+
+    await factory.article.makeMany(entries);
+
+    final result = await Database.of(manager).model<Article>().query()
+      .paginate(page: 1, itemsPerPage: itemsPerPage)
+      .then((value) => value.next());
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, allOf([isNotEmpty, hasLength(itemsPerPage)]));
+    expect(result.lastPage, (entries / itemsPerPage).ceil());
+  });
+
+  test('try to paginate the third page with next() with 2 elements per page', () async {
+    final entries = 5;
+    final itemsPerPage = 2;
+
+    await factory.article.makeMany(entries);
+
+    final result = await Database.of(manager).model<Article>().query()
+      .paginate(page: 1, itemsPerPage: itemsPerPage)
+      .then((value) => value.next())
+      .then((value) => value.next());
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, allOf([isNotEmpty, hasLength(1)]));
+    expect(result.lastPage, (entries / itemsPerPage).ceil());
+  });
+
+  test('try to paginate the third page without calling next() with 2 elements per page', () async {
+    final entries = 5;
+    final itemsPerPage = 2;
+
+    await factory.article.makeMany(entries);
+
+    final result = await Database.of(manager).model<Article>().query()
+      .paginate(page: 3, itemsPerPage: itemsPerPage);
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, allOf([isNotEmpty, hasLength(1)]));
+    expect(result.lastPage, (entries / itemsPerPage).ceil());
+  });
+
+  test('try to paginate empty table', () async {
+    final itemsPerPage = 2;
+
+    final result = await Database.of(manager).model<Article>().query()
+      .paginate(page: 1, itemsPerPage: itemsPerPage);
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, isEmpty);
+  });
+
+  test('try to paginate 5 results with 2 elements per page from Model', () async {
+    final entries = 5;
+    final itemsPerPage = 2;
+
+    await factory.article.makeMany(entries);
+
+    final result = await Database.of(manager)
+      .model<Article>()
+      .paginate(page: 1, itemsPerPage: itemsPerPage);
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, hasLength(itemsPerPage));
+    expect(result.lastPage, (entries / itemsPerPage).ceil());
+  });
+
+  test('try to paginate the second page with next() with 2 elements per page from Model', () async {
+    final entries = 5;
+    final itemsPerPage = 2;
+
+    await factory.article.makeMany(entries);
+
+    final result = await Database.of(manager)
+        .model<Article>()
+        .paginate(page: 1, itemsPerPage: itemsPerPage)
+        .then((value) => value.next());
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, allOf([isNotEmpty, hasLength(itemsPerPage)]));
+    expect(result.lastPage, (entries / itemsPerPage).ceil());
+  });
+
+  test('try to paginate the third page with next() with 2 elements per page from Model', () async {
+    final entries = 5;
+    final itemsPerPage = 2;
+
+    await factory.article.makeMany(entries);
+
+    final result = await Database.of(manager)
+        .model<Article>()
+        .paginate(page: 1, itemsPerPage: itemsPerPage)
+        .then((value) => value.next())
+        .then((value) => value.next());
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, allOf([isNotEmpty, hasLength(1)]));
+    expect(result.lastPage, (entries / itemsPerPage).ceil());
+  });
+
+  test('try to paginate the third page without calling next() with 2 elements per page from Model', () async {
+    final entries = 5;
+    final itemsPerPage = 2;
+
+    await factory.article.makeMany(entries);
+
+    final result = await Database.of(manager)
+      .model<Article>()
+      .paginate(page: 3, itemsPerPage: itemsPerPage);
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, allOf([isNotEmpty, hasLength(1)]));
+    expect(result.lastPage, (entries / itemsPerPage).ceil());
+  });
+
+  test('try to paginate empty table from Model', () async {
+    final itemsPerPage = 2;
+
+    final result = await Database.of(manager)
+      .model<Article>()
+      .paginate(page: 1, itemsPerPage: itemsPerPage);
+
+    expect(result, isA<Pagination<Article>>());
+    expect(result.data, isEmpty);
   });
 }

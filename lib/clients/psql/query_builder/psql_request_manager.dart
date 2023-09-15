@@ -87,6 +87,7 @@ class RequestManager {
       structure.clauses.from,
       ...structure.clauses.where,
       structure.clauses.limit,
+      structure.clauses.offset,
       ...structure.clauses.order
     ];
 

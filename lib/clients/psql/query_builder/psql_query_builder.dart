@@ -11,6 +11,7 @@ import 'package:fluent_orm/clients/psql/query_builder/clauses/where_between_clau
 import 'package:fluent_orm/clients/psql/query_builder/clauses/where_not_between_clause.dart';
 import 'package:fluent_orm/clients/psql/query_builder/clauses/where_not_in_clause.dart';
 import 'package:fluent_orm/clients/psql/query_builder/psql_clause_structure.dart';
+import 'package:fluent_orm/clients/psql/query_builder/psql_pagination.dart';
 import 'package:fluent_orm/fluent_manager.dart';
 import 'package:fluent_orm/clients/common/abstract_standalone_query_builder.dart';
 import 'package:fluent_orm/clients/psql/query_builder/clauses/and_where_clause.dart';
@@ -417,5 +418,42 @@ class PsqlQueryBuilder<T> implements AbstractStandaloneQueryBuilder<T> {
 
     _structure.preloads.add(PreloadRelation((value) => preloadBuilder.build(value), M, R));
     return this;
+  }
+
+  @override
+  Future<PsqlPagination<T>> paginate ({ required int page, int itemsPerPage = 10 }) async {
+    final countQuery = _manager.request.buildSelectQuery(_structure);
+    final countResult = await _manager.request.commit<List>(countQuery);
+
+    final int lastPage = (countResult!.length / itemsPerPage).ceil();
+
+    _structure.clauses
+      ..limit = LimitClause(itemsPerPage)
+      ..offset = OffsetClause((page - 1) * itemsPerPage);
+
+    final query = _manager.request.buildSelectQuery(_structure);
+    final result = await _manager.request.commit<List>(query);
+
+    _structure.clauses
+      ..limit = null
+      ..offset = null;
+
+    if (T == dynamic) {
+      return PsqlPagination(_structure, _manager,
+        currentPage: page,
+        firstPage: page,
+        lastPage: lastPage,
+        itemsPerPage: itemsPerPage,
+        data: List<T>.from(result ?? []),
+      );
+    }
+
+    return PsqlPagination<T>(_structure, _manager,
+      currentPage: page,
+      firstPage: page,
+      lastPage: lastPage,
+      itemsPerPage: itemsPerPage,
+      data: List<T>.from(result!.map((element) => _manager.request.assignToModel<T>(element)))
+    );
   }
 }

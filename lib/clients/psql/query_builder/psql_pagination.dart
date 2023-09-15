@@ -22,17 +22,15 @@ final class PsqlPagination<T> extends Pagination<T> {
     final count = await this.count();
     final page = currentPage - 1;
 
-    if (page < firstPage) {
-      return PsqlPagination<T>(_structure, _manager,
-        currentPage: page,
-        firstPage: firstPage,
-        lastPage: _calcLastPage(count),
-        itemsPerPage: itemsPerPage,
-        data: []
-      );
-    }
-
-    return _fetchData(page, count);
+    return PsqlPagination<T>(_structure, _manager,
+      currentPage: page,
+      firstPage: firstPage,
+      lastPage: _calcLastPage(count),
+      itemsPerPage: itemsPerPage,
+      data: page < firstPage
+        ?  []
+        :  await _fetchData(page, count)
+    );
   }
 
   @override
@@ -40,17 +38,15 @@ final class PsqlPagination<T> extends Pagination<T> {
     final count = await this.count();
     final page = currentPage + 1;
 
-    if (page > lastPage) {
-      return PsqlPagination<T>(_structure, _manager,
-        currentPage: page,
-        firstPage: firstPage,
-        lastPage: _calcLastPage(count),
-        itemsPerPage: itemsPerPage,
-        data: []
-      );
-    }
-
-    return _fetchData(page, count);
+    return PsqlPagination<T>(_structure, _manager,
+      currentPage: page,
+      firstPage: firstPage,
+      lastPage: _calcLastPage(count),
+      itemsPerPage: itemsPerPage,
+      data: page > lastPage
+        ?  []
+        :  await _fetchData(page, count)
+    );
   }
 
   Future<int> count() async {
@@ -60,7 +56,7 @@ final class PsqlPagination<T> extends Pagination<T> {
       .then((value) => value?.length ?? 0);
   }
 
-  Future<PsqlPagination<T>> _fetchData(int targetPage, int count) async {
+  Future<List<T>> _fetchData(int targetPage, int count) async {
     _structure.clauses
       ..limit = LimitClause(itemsPerPage)
       ..offset = OffsetClause((targetPage - 1) * itemsPerPage);
@@ -72,29 +68,10 @@ final class PsqlPagination<T> extends Pagination<T> {
       ..limit = null
       ..offset = null;
 
-    if (T == dynamic) {
-      return PsqlPagination(_structure, _manager,
-        currentPage: targetPage,
-        firstPage: firstPage,
-        lastPage: _calcLastPage(count),
-        itemsPerPage: itemsPerPage,
-        data: List<T>.from(result ?? []),
-      );
-    }
-
-
-    return PsqlPagination<T>(_structure, _manager,
-      currentPage: targetPage,
-      firstPage: firstPage,
-      lastPage: _calcLastPage(count),
-      itemsPerPage: itemsPerPage,
-      data: List<T>.from(result!.map((element) => _manager.request.assignToModel<T>(element)))
-    );
+    return List<T>.from(T == dynamic
+      ? result ?? []
+      : result!.map((element) => _manager.request.assignToModel<T>(element)));
   }
 
   int _calcLastPage (int count) => (count / itemsPerPage).ceil();
 }
-
-// 5 elements
-// 2 elements per page
-// [x, x] + [x, x] + [x]

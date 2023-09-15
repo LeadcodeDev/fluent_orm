@@ -438,22 +438,15 @@ class PsqlQueryBuilder<T> implements AbstractStandaloneQueryBuilder<T> {
       ..limit = null
       ..offset = null;
 
-    if (T == dynamic) {
-      return PsqlPagination(_structure, _manager,
-        currentPage: page,
-        firstPage: page,
-        lastPage: lastPage,
-        itemsPerPage: itemsPerPage,
-        data: List<T>.from(result ?? []),
-      );
-    }
-
-    return PsqlPagination<T>(_structure, _manager,
+    return PsqlPagination(_structure, _manager,
       currentPage: page,
       firstPage: page,
       lastPage: lastPage,
       itemsPerPage: itemsPerPage,
-      data: List<T>.from(result!.map((element) => _manager.request.assignToModel<T>(element)))
+      data: List<T>.from(T == dynamic
+        ? result ?? []
+        : result!.map((element) => _manager.request.assignToModel<T>(element))
+      )
     );
   }
 }
